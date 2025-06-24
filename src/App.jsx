@@ -12,6 +12,8 @@ import {
   useToast,
   Divider,
   Spinner,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { db } from "./firebase";
 import PrivacyPolicy from "./PrivacyPolicy";
@@ -25,11 +27,27 @@ import {
 } from "firebase/firestore";
 
 const emojiThemes = {
-  Animals: ["🐶", "🐱", "🦁", "🐵", "🐸", "🐼", "🐔", "🐷"],
-  Food: ["🍎", "🍔", "🍕", "🍣", "🍩", "🍪", "🍫", "🍇"],
-  Smileys: ["😀", "😂", "😍", "😎", "😭", "😡", "😴", "🤓"],
-  Party: ["🎉", "🎈", "🎂", "🎊", "🍾", "🪩", "🥳", "🎵"],
-  Sports: ["⚽", "🏀", "🎾", "🏓", "🥊", "🏐", "🏸", "⛳"],
+  Animals: ["🐶", "🐱", "🦁", "🐵", "🐸", "🐼", "🐔", "🐷"],       // Free
+  Food: ["🍎", "🍔", "🍕", "🍣", "🍩", "🍪", "🍫", "🍇"],           // Free
+  Smileys: ["😀", "😂", "😍", "😎", "😭", "😡", "😴", "🤓"],        // Free
+  Party: ["🎉", "🎈", "🎂", "🎊", "🍾", "🪩", "🥳", "🎵"],         // Free
+  Sports: ["⚽", "🏀", "🎾", "🏓", "🥊", "🏐", "🏸", "⛳"],         // Free
+
+  Weather: ["☀️", "🌧️", "⛈️", "❄️", "🌪️", "🌈", "🌤️", "🌙"],    // Premium
+  Travel: ["✈️", "🚗", "🚢", "🚀", "🛵", "🚉", "🚲", "🚁"],         // Premium
+  Nature: ["🌳", "🌵", "🌸", "🌻", "🍁", "🍂", "🌼", "🌾"],         // Premium
+  Tech: ["💻", "📱", "🖥️", "⌚", "🖱️", "📷", "🎧", "🔋"],           // Premium
+  Fantasy: ["🐉", "🧚", "🧙", "🧞", "🧛", "🧜", "🧟", "👽"],         // Premium
+  Space: ["🌍", "🌕", "🪐", "🚀", "👨‍🚀", "🛰️", "🌌", "☄️"],       // Premium
+  Jobs: ["👨‍🏫", "👩‍🍳", "👨‍⚕️", "👩‍🚒", "👷‍♂️", "👨‍🔬", "🕵️", "💼"], // Premium
+  Music: ["🎵", "🎶", "🎧", "🎤", "🎷", "🎸", "🥁", "🎻"],           // Premium
+  Zodiac: ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏"],             // Premium
+  Vehicles: ["🚗", "🛵", "🚜", "🚂", "🚕", "🚌", "🚛", "🚓"],         // Premium
+  Spooky: ["🎃", "👻", "🧟", "🕷️", "🧛", "🦇", "🧙", "💀"],          // Premium
+  Love: ["❤️", "💖", "💘", "💝", "💕", "💗", "💓", "💞"],           // Premium
+  Fruits: ["🍎", "🍉", "🍓", "🍍", "🍌", "🥭", "🍒", "🍇"],         // Premium
+  Ocean: ["🐬", "🐳", "🦈", "🐠", "🐙", "🦀", "🪸", "🌊"],           // Premium
+  Buildings: ["🏠", "🏢", "🏰", "🏟️", "🏛️", "🗽", "🗼", "🕌"],       // Premium
 };
 
 export default function App() {
@@ -57,7 +75,13 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showStats, setShowStats] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [usedThemes, setUsedThemes] = useState(() => {
+  const saved = localStorage.getItem("duotiles_usedThemes");
+  return saved ? JSON.parse(saved) : [];
+});
 
+  const [isPremiumUser, setIsPremiumUser] = useState(false);// Set to true when unlocked
+ 
 
 
   const toast = useToast();
@@ -258,14 +282,15 @@ export default function App() {
   };
 
   const handleResetStats = () => {
-    localStorage.removeItem("duotiles_player");
-    localStorage.removeItem("duotiles_stats");
-    setPlayerName("");
-    setInputName("");
-    setIsEditingName(true);
-    setGameStats({ bestTime: null, bestTurns: null, gamesPlayed: 0 });
-    toast({ title: "Game stats and name reset.", status: "info" });
-  };
+  localStorage.removeItem("duotiles_stats");
+  setGameStats({ bestTime: null, bestTurns: null, gamesPlayed: 0 });
+  toast({
+    title: "Stats reset!",
+    description: "Your best time and turns have been cleared.",
+    status: "info",
+  });
+};
+
 
   const toggleSound = () => {
     const next = !soundEnabled;
@@ -323,43 +348,83 @@ if (showSplash) {
   }}>
     {isEditingName ? "Save" : "Edit Name"}
   </Button>
-  <Button size="sm" colorScheme="red" variant="outline" onClick={handleResetStats}>
-    Reset
-  </Button>
+  
   <Button size="sm" colorScheme={soundEnabled ? "purple" : "gray"} variant="outline" onClick={toggleSound}>
     {soundEnabled ? "🔊" : "🔇"}
   </Button>
+  <Button
+  size="sm"
+  colorScheme={isPremiumUser ? "green" : "blue"}
+  variant="outline"
+  onClick={() => setIsPremiumUser((prev) => !prev)}
+>
+  {isPremiumUser ? "Unlocked ✅" : "Premium 🔓"}
+</Button>
+
 </HStack>
 
 {isEditingName && (
-  <Input
-    value={inputName}
-    onChange={(e) => setInputName(e.target.value)}
-    size="sm"
-    maxW="300px"
-    mx="auto"
-    mb={3}
-  />
+  <Center mb={3}>
+    <Input
+      value={inputName}
+      onChange={(e) => setInputName(e.target.value)}
+      size="md"
+      maxW="280px"
+      textAlign="center"
+      bg="white"
+      border="2px solid"
+      borderColor="teal.300"
+      borderRadius="md"
+      boxShadow="sm"
+      _placeholder={{ color: "gray.400" }}
+      placeholder="Enter your name"
+    />
+  </Center>
 )}
+
+
 
 
 
       <VStack spacing={2} bg="gray.100" p={2} borderRadius="md" w="100%" maxW="360px" mx="auto" mb={3}>
 
   <Text fontWeight="semibold" fontSize="sm">Pick Your Emoji Theme</Text>
-  <HStack spacing={1} wrap="wrap" justify="center">
+  <Wrap spacing={2} justify="center">
+  {Object.keys(emojiThemes).map((cat, index) => {
+    const isPremiumTheme = index >= 5;
+    const isLocked = isPremiumTheme && !isPremiumUser;
+    const isUsed = usedThemes.includes(cat);
 
-    {Object.keys(emojiThemes).map((cat) => (
-      <Button
-        key={cat}
-        size="xs"
-        colorScheme={theme === cat ? "teal" : "gray"}
-        onClick={() => setTheme(cat)}
-      >
-        {cat} {emojiThemes[cat][0]}
-      </Button>
-    ))}
-  </HStack>
+    return (
+      <WrapItem key={cat}>
+        <Button
+          size="xs"
+          px={3}
+          fontSize="xs"
+          minW="82px"
+          maxW="100px"
+          colorScheme={theme === cat ? "teal" : isPremiumTheme ? "orange" : "gray"}
+          variant={isLocked ? "outline" : "solid"}
+          onClick={() => {
+            if (!isLocked) {
+              setTheme(cat);
+              if (!isUsed) {
+                const updated = [...usedThemes, cat];
+                setUsedThemes(updated);
+                localStorage.setItem("duotiles_usedThemes", JSON.stringify(updated));
+              }
+            }
+          }}
+          isDisabled={isLocked}
+          title={isLocked ? "Premium theme 🔒" : `Select ${cat}`}
+        >
+          {cat} {emojiThemes[cat][0]} {isLocked ? "🔒" : isUsed ? "🏆" : ""}
+        </Button>
+      </WrapItem>
+    );
+  })}
+</Wrap>
+
   
 </VStack>
 
@@ -407,6 +472,15 @@ if (showSplash) {
   >
     {showStats ? "Hide Stats" : "Show Stats"}
   </Button>
+<Button
+  size="sm"
+  colorScheme="red"
+  variant="outline"
+  onClick={handleResetStats}
+  ml={3}
+>
+  Reset Stats
+</Button>
 
   {showStats && (
     <HStack
@@ -529,4 +603,3 @@ if (showSplash) {
   </Router>
 );
 }
-
