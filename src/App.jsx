@@ -28,11 +28,11 @@ import {
 
 const emojiThemes = {
   Animals: ["🐶", "🐱", "🦁", "🐵", "🐸", "🐼", "🐔", "🐷"],       // Free
-  Food: ["🍎", "🍔", "🍕", "🍣", "🍩", "🍪", "🍫", "🍇"],           // Free
-  Smileys: ["😀", "😂", "😍", "😎", "😭", "😡", "😴", "🤓"],        // Free
-  Party: ["🎉", "🎈", "🎂", "🎊", "🍾", "🪩", "🥳", "🎵"],         // Free
-  Sports: ["⚽", "🏀", "🎾", "🏓", "🥊", "🏐", "🏸", "⛳"],         // Free
 
+  Food: ["🍎", "🍔", "🍕", "🍣", "🍩", "🍪", "🍫", "🍇"],           // Premium
+  Smileys: ["😀", "😂", "😍", "😎", "😭", "😡", "😴", "🤓"],        // Premium
+  Party: ["🎉", "🎈", "🎂", "🎊", "🍾", "🪩", "🥳", "🎵"],         // Premium
+  Sports: ["⚽", "🏀", "🎾", "🏓", "🥊", "🏐", "🏸", "⛳"],         // Premium
   Weather: ["☀️", "🌧️", "⛈️", "❄️", "🌪️", "🌈", "🌤️", "🌙"],    // Premium
   Travel: ["✈️", "🚗", "🚢", "🚀", "🛵", "🚉", "🚲", "🚁"],         // Premium
   Nature: ["🌳", "🌵", "🌸", "🌻", "🍁", "🍂", "🌼", "🌾"],         // Premium
@@ -50,11 +50,32 @@ const emojiThemes = {
   Buildings: ["🏠", "🏢", "🏰", "🏟️", "🏛️", "🗽", "🗼", "🕌"],       // Premium
 };
 
+
 export default function App() {
   const [playerName, setPlayerName] = useState("");
+    // Check if redirected from Stripe success page
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    if (search.get("success") === "true") {
+      localStorage.setItem("duotiles_premium", "true");
+      setIsPremiumUser(true);
+      toast({
+        title: "Premium unlocked!",
+        description: "Enjoy all emoji themes 😊",
+        status: "success",
+      });
+      window.history.replaceState({}, document.title, "/");
+    } else {
+      const savedPremium = localStorage.getItem("duotiles_premium");
+      if (savedPremium === "true") {
+        setIsPremiumUser(true);
+      }
+    }
+  }, []);
+
   const [inputName, setInputName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
-  const [theme, setTheme] = useState("Food");
+  const [theme, setTheme] = useState("Animals"); // ✅ The only free theme
   const [selectedEmojis, setSelectedEmojis] = useState([]);
   const [tiles, setTiles] = useState([]);
   const [flipped, setFlipped] = useState([]);
@@ -356,10 +377,17 @@ if (showSplash) {
   size="sm"
   colorScheme={isPremiumUser ? "green" : "blue"}
   variant="outline"
-  onClick={() => setIsPremiumUser((prev) => !prev)}
+  onClick={() => {
+    if (isPremiumUser) {
+      toast({ title: "Premium already unlocked ✅", status: "info" });
+    } else {
+      window.location.href = "https://buy.stripe.com/bJedRb82z2Lu1k5fKe4ow01";
+    }
+  }}
 >
-  {isPremiumUser ? "Unlocked ✅" : "Premium 🔓"}
+  {isPremiumUser ? "Unlocked ✅" : "Unlock Premium 🔓"}
 </Button>
+
 
 </HStack>
 
@@ -391,7 +419,8 @@ if (showSplash) {
   <Text fontWeight="semibold" fontSize="sm">Pick Your Emoji Theme</Text>
   <Wrap spacing={2} justify="center">
   {Object.keys(emojiThemes).map((cat, index) => {
-    const isPremiumTheme = index >= 5;
+  const isPremiumTheme = index > 0; // ✅ only "Animals" (index 0) is free
+
     const isLocked = isPremiumTheme && !isPremiumUser;
     const isUsed = usedThemes.includes(cat);
 
