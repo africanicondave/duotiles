@@ -349,9 +349,26 @@ if (showSplash) {
             {/* --- all your game content stays inside here, do NOT delete anything --- */}
 
 
-      <Text fontSize={["lg", "xl"]} fontWeight="bold" mb={4} textAlign="center">
-        Welcome to Duotiles, {playerName || "Player"}!
-      </Text>
+      <HStack justify="center" mb={4}>
+  <Text fontSize={["lg", "xl"]} fontWeight="bold">
+    Welcome to Duotiles, {playerName || "Player"}!
+  </Text>
+  {isPremiumUser && (
+    <Box
+      bg="yellow.400"
+      color="black"
+      fontSize="xs"
+      fontWeight="bold"
+      px={2}
+      py={1}
+      borderRadius="md"
+      ml={2}
+    >
+      PREMIUM
+    </Box>
+  )}
+</HStack>
+
 
       <HStack
   spacing={2}
@@ -373,20 +390,31 @@ if (showSplash) {
   <Button size="sm" colorScheme={soundEnabled ? "purple" : "gray"} variant="outline" onClick={toggleSound}>
     {soundEnabled ? "🔊" : "🔇"}
   </Button>
+  {!isPremiumUser ? (
   <Button
-  size="sm"
-  colorScheme={isPremiumUser ? "green" : "blue"}
-  variant="outline"
-  onClick={() => {
-    if (isPremiumUser) {
-      toast({ title: "Premium already unlocked ✅", status: "info" });
-    } else {
-      window.location.href = "https://buy.stripe.com/bJedRb82z2Lu1k5fKe4ow01";
+    size="sm"
+    colorScheme="blue"
+    variant="solid"
+    onClick={() =>
+      window.location.href = "https://buy.stripe.com/bJedRb82z2Lu1k5fKe4ow01"
     }
-  }}
->
-  {isPremiumUser ? "Unlocked ✅" : "Unlock Premium 🔓"}
-</Button>
+  >
+    Unlock Premium 🔓
+  </Button>
+) : (
+  <Box
+    bg="green.500"
+    color="white"
+    px={3}
+    py={1}
+    fontSize="sm"
+    borderRadius="md"
+    fontWeight="bold"
+  >
+    ✅ Premium User
+  </Box>
+)}
+
 
 
 </HStack>
@@ -419,7 +447,10 @@ if (showSplash) {
   <Text fontWeight="semibold" fontSize="sm">Pick Your Emoji Theme</Text>
   <Wrap spacing={2} justify="center">
   {Object.keys(emojiThemes).map((cat, index) => {
-  const isPremiumTheme = index > 0; // ✅ only "Animals" (index 0) is free
+  const isPremiumTheme = cat !== "Animals";
+
+
+
 
     const isLocked = isPremiumTheme && !isPremiumUser;
     const isUsed = usedThemes.includes(cat);
