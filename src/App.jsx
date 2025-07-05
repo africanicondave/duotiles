@@ -54,24 +54,7 @@ const emojiThemes = {
 export default function App() {
   const [playerName, setPlayerName] = useState("");
     // Check if redirected from Stripe success page
-  useEffect(() => {
-    const search = new URLSearchParams(window.location.search);
-    if (search.get("success") === "true") {
-      localStorage.setItem("duotiles_premium", "true");
-      setIsPremiumUser(true);
-      toast({
-        title: "Premium unlocked!",
-        description: "Enjoy all emoji themes 😊",
-        status: "success",
-      });
-      window.history.replaceState({}, document.title, "/");
-    } else {
-      const savedPremium = localStorage.getItem("duotiles_premium");
-      if (savedPremium === "true") {
-        setIsPremiumUser(true);
-      }
-    }
-  }, []);
+  
 
   const [inputName, setInputName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
@@ -100,9 +83,6 @@ export default function App() {
   const saved = localStorage.getItem("duotiles_usedThemes");
   return saved ? JSON.parse(saved) : [];
 });
-
-  const [isPremiumUser, setIsPremiumUser] = useState(false);// Set to true when unlocked
- 
 
 
   const toast = useToast();
@@ -350,23 +330,19 @@ if (showSplash) {
 
 
       <HStack justify="center" mb={4}>
-  <Text fontSize={["lg", "xl"]} fontWeight="bold">
-    Welcome to Duotiles, {playerName || "Player"}!
-  </Text>
-  {isPremiumUser && (
-    <Box
-      bg="yellow.400"
-      color="black"
-      fontSize="xs"
-      fontWeight="bold"
-      px={2}
-      py={1}
-      borderRadius="md"
-      ml={2}
-    >
-      PREMIUM
-    </Box>
-  )}
+  <Text
+  fontSize={["xl", "2xl"]}
+  fontWeight="extrabold"
+  bgGradient="linear(to-r, teal.400, pink.400)"
+  bgClip="text"
+  textAlign="center"
+  textShadow="1px 1px 2px rgba(0, 0, 0, 0.2)"
+>
+  🎉 Welcome to Duotiles, {playerName || "Player"}!
+</Text>
+
+
+  
 </HStack>
 
 
@@ -390,32 +366,6 @@ if (showSplash) {
   <Button size="sm" colorScheme={soundEnabled ? "purple" : "gray"} variant="outline" onClick={toggleSound}>
     {soundEnabled ? "🔊" : "🔇"}
   </Button>
-  {!isPremiumUser ? (
-  <Button
-    size="sm"
-    colorScheme="blue"
-    variant="solid"
-    onClick={() =>
-      window.location.href = "https://buy.stripe.com/bJedRb82z2Lu1k5fKe4ow01"
-    }
-  >
-    Unlock Premium 🔓
-  </Button>
-) : (
-  <Box
-    bg="green.500"
-    color="white"
-    px={3}
-    py={1}
-    fontSize="sm"
-    borderRadius="md"
-    fontWeight="bold"
-  >
-    ✅ Premium User
-  </Box>
-)}
-
-
 
 </HStack>
 
@@ -438,55 +388,66 @@ if (showSplash) {
   </Center>
 )}
 
+<VStack
+  spacing={2}
+  bg="gray.100"
+  p={3}
+  borderRadius="md"
+  w="100%"
+  maxW="320px"
+  mx="auto"
+  mb={3}
+>
+  <Text
+  fontSize={["md", "lg"]}
+  fontWeight="bold"
+  bgGradient="linear(to-r, pink.400, teal.400)"
+  bgClip="text"
+  textAlign="center"
+  mb={2}
+  textShadow="0 1px 1px rgba(0, 0, 0, 0.15)"
+>
+  🎨 Pick Your Emoji Theme
+</Text>
 
 
-
-
-      <VStack spacing={2} bg="gray.100" p={2} borderRadius="md" w="100%" maxW="360px" mx="auto" mb={3}>
-
-  <Text fontWeight="semibold" fontSize="sm">Pick Your Emoji Theme</Text>
-  <Wrap spacing={2} justify="center">
-  {Object.keys(emojiThemes).map((cat, index) => {
-  const isPremiumTheme = cat !== "Animals";
-
-
-
-
-    const isLocked = isPremiumTheme && !isPremiumUser;
-    const isUsed = usedThemes.includes(cat);
-
-    return (
-      <WrapItem key={cat}>
-        <Button
-          size="xs"
-          px={3}
-          fontSize="xs"
-          minW="82px"
-          maxW="100px"
-          colorScheme={theme === cat ? "teal" : isPremiumTheme ? "orange" : "gray"}
-          variant={isLocked ? "outline" : "solid"}
-          onClick={() => {
-            if (!isLocked) {
+  <Wrap spacing="5px" justify="center">
+    {Object.keys(emojiThemes).map((cat) => {
+      const isUsed = usedThemes.includes(cat);
+      return (
+        <WrapItem key={cat}>
+          <Button
+            size="xs"
+            fontSize="11px"
+            px={2}
+            py={1}
+            minW="80px"
+            h="28px"
+            borderRadius="full"
+            colorScheme={theme === cat ? "teal" : "gray"}
+            variant="solid"
+            onClick={() => {
               setTheme(cat);
               if (!isUsed) {
                 const updated = [...usedThemes, cat];
                 setUsedThemes(updated);
                 localStorage.setItem("duotiles_usedThemes", JSON.stringify(updated));
               }
-            }
-          }}
-          isDisabled={isLocked}
-          title={isLocked ? "Premium theme 🔒" : `Select ${cat}`}
-        >
-          {cat} {emojiThemes[cat][0]} {isLocked ? "🔒" : isUsed ? "🏆" : ""}
-        </Button>
-      </WrapItem>
-    );
-  })}
-</Wrap>
-
-  
+            }}
+            _hover={{
+              transform: "scale(1.03)",
+              boxShadow: "sm",
+            }}
+          >
+            {cat} {emojiThemes[cat][0]}
+          </Button>
+        </WrapItem>
+      );
+    })}
+  </Wrap>
 </VStack>
+
+
 
 
       <VStack spacing={4}>
@@ -641,19 +602,31 @@ if (showSplash) {
 )}
 <Box
   as="footer"
-  py={4}
+  py={5}
   textAlign="center"
   fontSize="sm"
   borderTop="1px solid #e2e8f0"
   mt={10}
+  bg="whiteAlpha.700"
 >
-  <Text>
-    © 2025 Duotiles. Created by David Adeyemo.{" "}
-    <Link as={NavLink} to="/privacy-policy" color="blue.500" ml={2}>
+  <Text color="gray.700">
+    <strong>© 2025 Duotiles.</strong> Created by{" "}
+    <Text as="span" fontWeight="bold" color="teal.600">
+      David Adeyemo
+    </Text>
+    .{" "}
+    <Link
+      as={NavLink}
+      to="/privacy-policy"
+      color="blue.500"
+      _hover={{ textDecoration: "underline" }}
+      fontWeight="medium"
+    >
       Privacy Policy
     </Link>
   </Text>
 </Box>
+
 
     </Box>
       }
