@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import {
   Box, Button, Center, Text, VStack, HStack,
   Card, CardBody, Flex, Wrap, WrapItem,
-  Modal, ModalOverlay, ModalContent, ModalBody, ModalHeader, ModalCloseButton, ModalFooter
+  Modal, ModalOverlay, ModalContent, ModalBody, ModalHeader, ModalCloseButton, ModalFooter,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import PrivacyPolicy from "./PrivacyPolicy";
@@ -147,51 +147,71 @@ function ConfettiBurst({ show }) {
   );
 }
 
-/* ---------- Compact Stat Pill (supports size="sm") ---------- */
-function StatPill({ icon, label, number, help, size = "md" }) {
-  const isSm = size === "sm";
-  const circle = isSm ? 28 : 36;
-  const px = isSm ? 2 : 3;
-  const py = isSm ? 1.5 : 2;
-  const numFs = isSm ? "lg" : "xl";
-  const labelFs = isSm ? "2xs" : "xs";
-  const helpFs = isSm ? "2xs" : "xs";
-
+/* ---------- Ultra-compact Stat Pill (one-row mobile) ---------- */
+function StatPill({ icon, label, number, help }) {
   return (
     <Flex
       align="center"
-      gap={isSm ? 2 : 3}
-      px={px}
-      py={py}
-      borderRadius="xl"
+      gap={2}
+      px={2}
+      py={1}
+      borderRadius="lg"
       bg="white"
       border="1px solid #eee"
       boxShadow="sm"
-      minW="auto"
-      flexShrink={0}
-      height={isSm ? "56px" : "auto"}
+      minW={0}
+      height={{ base: "44px", md: "56px" }}
+      flex="1 1 0"
     >
       <Box
-        w={`${circle}px`}
-        h={`${circle}px`}
+        w={{ base: "24px", md: "32px" }}
+        h={{ base: "24px", md: "32px" }}
         borderRadius="full"
         bg="#6C00FF"
         color="white"
         display="grid"
         placeItems="center"
-        fontSize={isSm ? "md" : "lg"}
+        fontSize={{ base: "sm", md: "md" }}
         flexShrink={0}
       >
         {icon}
       </Box>
-      <Box lineHeight="short">
-        <Text fontSize={labelFs} color="gray.500" textTransform="uppercase" letterSpacing="0.08em">
+
+      <Box minW={0} w="100%" lineHeight="short">
+        <HStack spacing={2} maxW="100%" minW="0" align="baseline">
+          <Text
+            fontSize={{ base: "md", md: "xl" }}
+            fontWeight="800"
+            noOfLines={1}
+            whiteSpace="nowrap"
+            sx={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {number}
+          </Text>
+          {help && (
+            <Text
+              display={{ base: "none", md: "inline" }}
+              fontSize="xs"
+              color="gray.500"
+              noOfLines={1}
+              isTruncated
+            >
+              {help}
+            </Text>
+          )}
+        </HStack>
+
+        <Text
+          display={{ base: "none", md: "block" }}
+          fontSize="2xs"
+          color="gray.500"
+          textTransform="uppercase"
+          letterSpacing="0.08em"
+          noOfLines={1}
+          whiteSpace="nowrap"
+        >
           {label}
         </Text>
-        <HStack spacing={2}>
-          <Text fontSize={numFs} fontWeight="800">{number}</Text>
-          {help && <Text fontSize={helpFs} color="gray.500">{help}</Text>}
-        </HStack>
       </Box>
     </Flex>
   );
@@ -245,13 +265,14 @@ function SoundToggle({ value, onChange }) {
   );
 }
 
-/* ---------- Hero Start Card ---------- */
+/* ---------- Hero Start Card (start button moved right under icon) ---------- */
 function HeroStartCard({ onStart }) {
   return (
     <Box
       position="relative"
       w="full"
-      minH={{ base: "58vh", md: "62vh" }}
+      minH={{ base: "48dvh", md: "62vh" }}
+      maxH="calc(100dvh - 260px)"
       borderRadius="xl"
       overflow="hidden"
       bgGradient="linear(to-b, purple.50, white)"
@@ -284,15 +305,18 @@ function HeroStartCard({ onStart }) {
 
       <VStack spacing={4} zIndex={1} textAlign="center" px={4}>
         <Box fontSize={{ base: "40px", md: "48px" }} as="span">🎮</Box>
+
+        {/* Start button moved up directly under the icon */}
+        <Button size="lg" colorScheme="purple" onClick={onStart}>
+          Start Game
+        </Button>
+
         <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="800">
           Ready to play?
         </Text>
         <Text color="gray.600" maxW="560px">
           Match the pairs as fast as you can. Tap Start to begin, the timer starts on your first flip.
         </Text>
-        <Button size="lg" colorScheme="purple" onClick={onStart}>
-          Start Game
-        </Button>
       </VStack>
     </Box>
   );
@@ -510,7 +534,7 @@ function HomeGame() {
 
   return (
     <Box minH="100dvh" bg="#f7f7fb">
-      {/* Confetti + win message (zIndex above modal) */}
+      {/* Confetti + centered win message (above modal, non-interactive) */}
       <ConfettiBurst show={showCelebrate} />
       <AnimatePresence>
         {showCelebrate && (
@@ -523,16 +547,42 @@ function HomeGame() {
               position: "fixed",
               top: "50%",
               left: "50%",
-              transform: "translate(-50%, calc(-50% - 90px))",
+              transform: "translate(-50%, -50%)",
               zIndex: 2001,
               pointerEvents: "none"
             }}
           >
-            <Box px={5} py={3} borderRadius="xl" bg="white" boxShadow="2xl" border="1px solid #eee">
-              <HStack>
-                <span style={{ fontSize: 24 }}>🎉</span>
-                <Text fontWeight="800">Nice run! {msToClock(elapsed)} • {turns} turns</Text>
-              </HStack>
+            <Box
+              px={{ base: 4, md: 6 }}
+              py={{ base: 3, md: 4 }}
+              borderRadius="2xl"
+              bg="white"
+              boxShadow="2xl"
+              border="1px solid rgba(108,0,255,0.18)"
+              backdropFilter="blur(8px)"
+            >
+              <VStack spacing={1} align="center">
+                <Box
+                  w="36px"
+                  h="36px"
+                  borderRadius="full"
+                  bg="#6C00FF"
+                  color="white"
+                  display="grid"
+                  placeItems="center"
+                  boxShadow="md"
+                >
+                  🎉
+                </Box>
+                <Text fontWeight="900" fontSize={{ base: "lg", md: "xl" }}>
+                  Nice run!
+                </Text>
+                <HStack spacing={3}>
+                  <Text fontWeight="800">{msToClock(elapsed)}</Text>
+                  <Box as="span" aria-hidden="true">•</Box>
+                  <Text color="gray.700" fontWeight="700">{turns} turns</Text>
+                </HStack>
+              </VStack>
             </Box>
           </motion.div>
         )}
@@ -572,25 +622,60 @@ function HomeGame() {
             </CardBody>
           </Box>
 
-          {/* Game card with compact stats + BIG hero start card */}
+          {/* Game card with PB highlight + hero */}
           <Box w="full" as={Card}>
-            <CardBody px={{ base: 3, md: 6 }} py={{ base: 3, md: 4 }}>
-              <Flex
-                gap={2}
-                flexWrap="nowrap"
-                overflowX="auto"
-                pb={1}
-                mb={3}
-                sx={{
-                  WebkitOverflowScrolling: "touch",
-                  scrollbarWidth: "none",
-                  "&::-webkit-scrollbar": { display: "none" },
-                }}
-              >
-                <StatPill icon="⏱️" label="Time" number={msToClock(elapsed)} help={!modalOpen ? "Ready" : running ? "Counting…" : won ? "Finished" : "Ready"} size="sm" />
-                <StatPill icon="🔁" label="Turns" number={turns} help="Lower is better" size="sm" />
-                <StatPill icon="🏅" label="Personal Best" number={bestLocal ? msToClock(bestLocal.timeMs) : "—"} help={bestLocal ? `${bestLocal.turns} turns` : "Play to set"} size="sm" />
-              </Flex>
+            <CardBody px={{ base: 3, md: 6 }} py={{ base: 2, md: 4 }}>
+              {/* Personal Best — compact center highlight */}
+              <Center mb={{ base: 1, md: 3 }}>
+                <Box
+                  w="full"
+                  maxW="630px"
+                  border="1px solid #eee"
+                  borderRadius="xl"
+                  bgGradient="linear(to-b, white, purple.50)"
+                  px={{ base: 3, md: 5 }}
+                  py={{ base: 2, md: 3 }}
+                >
+                  <VStack spacing={{ base: 1, md: 2 }} textAlign="center">
+                    <Box
+                      w={{ base: "28px", md: "36px" }}
+                      h={{ base: "28px", md: "36px" }}
+                      borderRadius="full"
+                      bg="#6C00FF"
+                      color="white"
+                      display="grid"
+                      placeItems="center"
+                      boxShadow="md"
+                    >
+                      🏆
+                    </Box>
+
+                    <Text
+                      fontSize="2xs"
+                      color="gray.600"
+                      textTransform="uppercase"
+                      letterSpacing="0.12em"
+                    >
+                      Personal Best
+                    </Text>
+
+                    <Text
+                      fontSize={{ base: "xl", md: "3xl" }}
+                      fontWeight="900"
+                      lineHeight="1"
+                      sx={{ fontVariantNumeric: "tabular-nums" }}
+                    >
+                      {bestLocal ? msToClock(bestLocal.timeMs) : "—"}
+                    </Text>
+
+                    {!bestLocal && (
+                      <Text fontSize="xs" color="gray.500">
+                        Play to set your best time
+                      </Text>
+                    )}
+                  </VStack>
+                </Box>
+              </Center>
 
               {!modalOpen && (
                 <HeroStartCard onStart={() => setModalOpen(true)} />
@@ -694,12 +779,12 @@ function HomeGame() {
             </Box>
 
             {/* Quit + Sound toggle under grid */}
-<Center mt={4}>
-  <HStack spacing={3}>
-    <Button variant="ghost" onClick={closeModal}>Quit</Button>
-    <SoundToggle value={soundOn} onChange={setSoundOn} />
-  </HStack>
-</Center>
+            <Center mt={4}>
+              <HStack spacing={3}>
+                <Button variant="ghost" onClick={closeModal}>Quit</Button>
+                <SoundToggle value={soundOn} onChange={setSoundOn} />
+              </HStack>
+            </Center>
 
           </ModalBody>
         </ModalContent>
