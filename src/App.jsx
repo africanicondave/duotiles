@@ -288,7 +288,7 @@ function HeroStartCard({ onStart }) {
           Ready to play?
         </Text>
         <Text color="gray.600" maxW="560px">
-          Match the pairs as fast as you can. Tap Start to begin — the timer starts on your first flip.
+          Match the pairs as fast as you can. Tap Start to begin, the timer starts on your first flip.
         </Text>
         <Button size="lg" colorScheme="purple" onClick={onStart}>
           Start Game
@@ -693,10 +693,14 @@ function HomeGame() {
               </AnimatePresence>
             </Box>
 
-            {/* Quit button under grid */}
-            <Center mt={4}>
-              <Button variant="ghost" onClick={closeModal}>Quit</Button>
-            </Center>
+            {/* Quit + Sound toggle under grid */}
+<Center mt={4}>
+  <HStack spacing={3}>
+    <Button variant="ghost" onClick={closeModal}>Quit</Button>
+    <SoundToggle value={soundOn} onChange={setSoundOn} />
+  </HStack>
+</Center>
+
           </ModalBody>
         </ModalContent>
       </Modal>

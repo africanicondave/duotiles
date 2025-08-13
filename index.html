@@ -1,23 +1,36 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Meta -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#6C00FF" />
-    <title>DuoTiles — Free Emoji Memory Game</title>
-    <meta name="description" content="A fast, beautiful emoji memory game. Play free. All themes unlocked." />
 
-    <!-- OG / Twitter for clean link shares -->
-    <meta property="og:title" content="DuoTiles — Free Emoji Memory Game" />
+    <!-- Identity -->
+    <title>Duotiles — Free Emoji Memory Game</title>
+    <meta name="description" content="A fast, beautiful emoji memory game. Play free. All themes unlocked." />
+    <meta name="application-name" content="Duotiles" />
+    <meta name="apple-mobile-web-app-title" content="Duotiles" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#6C00FF" />
+    <meta name="msapplication-TileColor" content="#6C00FF" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Social (optional) -->
+    <meta property="og:title" content="Duotiles — Free Emoji Memory Game" />
     <meta property="og:description" content="Fast, clean, all themes unlocked. Try to beat your best time!" />
-    <meta property="og:image" content="/logo512.png" />
+    <meta property="og:image" content="/icons/icon-512.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary" />
-
-    <link rel="icon" type="image/png" href="/logo512.png" />
   </head>
   <body>
     <div id="root"></div>
+    <!-- Vite entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
