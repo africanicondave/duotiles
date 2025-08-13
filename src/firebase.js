@@ -1,29 +1,36 @@
-// Import the functions you need from the SDKs you need
+// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
+// ⬇️ Paste your existing Firebase config here
 const firebaseConfig = {
-  apiKey: "AIzaSyCLReReC7HGhgmT6kQqmu-jLgBmkvGsepM",
-  authDomain: "duotiles-a5ec9.firebaseapp.com",
-  projectId: "duotiles-a5ec9",
-  storageBucket: "duotiles-a5ec9.appspot.com",
-  messagingSenderId: "312097553316",
-  appId: "1:312097553316:web:87aa0c81729604fe811f31",
-  measurementId: "G-EC48EYGTMZ"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Initialize Firebase Auth
+export const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 export const auth = getAuth(app);
-export function signInAnon() {
-  return signInAnonymously(auth);
+
+// Call this once at app start (we do it in main.jsx)
+export async function signInAnon() {
+  try {
+    if (!auth.currentUser) {
+      await signInAnonymously(auth);
+    }
+    return auth.currentUser?.uid || null;
+  } catch (e) {
+    console.error("Anonymous sign-in failed:", e);
+    throw e;
+  }
 }
 
-// Initialize Firestore
-export const db = getFirestore(app);
+// Optional: observe state (handy for debugging)
+// onAuthStateChanged(auth, (u) => console.log("Auth:", u?.uid));
